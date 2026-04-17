@@ -1,0 +1,316 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+.container { padding: 1rem 0; }
+.tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.tab { padding: 6px 14px; font-size: 13px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); cursor: pointer; background: transparent; color: var(--color-text-secondary); transition: all 0.15s; }
+.tab.active { background: var(--color-background-secondary); color: var(--color-text-primary); border-color: var(--color-border-primary); font-weight: 500; }
+.q-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 1rem; }
+.q-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 10px; }
+.q-num { font-size: 12px; font-weight: 500; color: var(--color-text-info); background: var(--color-background-info); padding: 2px 8px; border-radius: var(--border-radius-md); white-space: nowrap; }
+.q-text { font-size: 14px; color: var(--color-text-primary); line-height: 1.6; flex: 1; }
+.answer-box { margin-top: 10px; display: none; }
+.answer-box.show { display: block; }
+pre { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 10px 12px; font-family: var(--font-mono); font-size: 12px; color: var(--color-text-primary); overflow-x: auto; white-space: pre-wrap; line-height: 1.6; }
+.toggle-btn { font-size: 12px; padding: 4px 10px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); cursor: pointer; background: transparent; color: var(--color-text-secondary); margin-top: 8px; }
+.toggle-btn:hover { background: var(--color-background-secondary); }
+.section-hidden { display: none; }
+.note { font-size: 12px; color: var(--color-text-secondary); margin-top: 6px; line-height: 1.5; }
+</style>
+
+<div class="container">
+<div class="tabs" id="tabs">
+  <button class="tab active" onclick="showSection('loading')">Loading Data</button>
+  <button class="tab" onclick="showSection('cleaning')">Cleaning</button>
+  <button class="tab" onclick="showSection('transform')">Transform</button>
+  <button class="tab" onclick="showSection('stats')">Stats</button>
+  <button class="tab" onclick="showSection('plotting')">Plotting</button>
+  <button class="tab" onclick="showSection('export')">Export</button>
+</div>
+
+<div id="loading">
+
+<div class="q-card">
+  <div class="q-header"><div class="q-num">Q1</div><div class="q-text">How do you read a CSV file directly from a URL into a pandas DataFrame?</div></div>
+  <button class="toggle-btn" onclick="toggle(this)">Show answer</button>
+  <div class="answer-box"><pre>import pandas as pd
+URL = "https://example.com/data.csv"
+df = pd.read_csv(URL)</pre></div>
+</div>
+
+<div class="q-card">
+  <div class="q-header"><div class="q-num">Q2</div><div class="q-text">After reading a CSV from a URL, how do you skip specific rows that contain the phrase "this row is useless"?</div></div>
+  <button class="toggle-btn" onclick="toggle(this)">Show answer</button>
+  <div class="answer-box"><pre>import requests
+lines = requests.get(URL).text.splitlines()
+skip = [i for i, l in enumerate(lines) if "this row is useless" in l.lower()]
+df = pd.read_csv(URL, skiprows=skip)</pre>
+<p class="note">enumerate() gives (index, line) pairs; skiprows accepts a list of 0-based row indices to skip before parsing.</p>
+</div>
+</div>
+
+<div class="q-card">
+  <div class="q-header"><div class="q-num">Q3</div><div class="q-text">What does <code>skiprows</code> expect as its argument, and what does <code>enumerate()</code> return?</div></div>
+  <button class="toggle-btn" onclick="toggle(this)">Show answer</button>
+  <div class="answer-box"><pre>skiprows accepts: an int, a list of ints, or a callable.
+
+enumerate(iterable) returns tuples of (index, value):
+lines = ["a", "b", "c"]
+for i, l in enumerate(lines):
+    print(i, l)
+# 0 a
+# 1 b
+# 2 c</pre></div>
+</div>
+
+</div>
+
+<div id="cleaning" class="section-hidden">
+
+<div class="q-card">
+  <div class="q-header"><div class="q-num">Q4</div><div class="q-text">How do you drop rows that have more than 1 NA value (i.e. keep rows with at most 1 NA)?</div></div>
+  <button class="toggle-btn" onclick="toggle(this)">Show answer</button>
+  <div class="answer-box"><pre>df.dropna(thresh=len(df.columns) - 1, inplace=True)
+# thresh = minimum number of non-NA values required to keep a row
+# len(df.columns) - 1  means at most 1 NA is allowed</pre></div>
+</div>
+
+<div class="q-card">
+  <div class="q-header"><div class="q-num">Q5</div><div class="q-text">How do you drop columns where ALL values are NA?</div></div>
+  <button class="toggle-btn" onclick="toggle(this)">Show answer</button>
+  <div class="answer-box"><pre>df.dropna(axis=1, how='all', inplace=True)
+# axis=1  → operate on columns (axis=0 is rows)
+# how='all' → only drop if every value is NA
+# how='any' → drop if at least one value is NA</pre></div>
+</div>
+
+<div class="q-card">
+  <div class="q-header"><div class="q-num">Q6</div><div class="q-text">How do you fill NA values in a specific column (e.g. 'S') with 0?</div></div>
+  <button class="toggle-btn" onclick="toggle(this)">Show answer</button>
+  <div class="answer-box"><pre>df['S'] = df['S'].fillna(0)
+# or in-place (older pandas):
+df['S'].fillna(0, inplace=True)</pre></div>
+</div>
+
+<div class="q-card">
+  <div class="q-header"><div class="q-num">Q7</div><div class="q-text">How do you remove duplicate rows from a DataFrame?</div></div>
+  <button class="toggle-btn" onclick="toggle(this)">Show answer</button>
+  <div class="answer-box"><pre>df.drop_duplicates(inplace=True)
+# Keep first occurrence by default.
+# To keep last: df.drop_duplicates(keep='last', inplace=True)
+# To check subset of columns: df.drop_duplicates(subset=['col1','col2'])</pre></div>
+</div>
+
+<div class="q-card">
+  <div class="q-header"><div class="q-num">Q8</div><div class="q-text">How do you replace values in 'SD0' that are less than or equal to 0 with NaN, using <code>.where()</code>?</div></div>
+  <button class="toggle-btn" onclick="toggle(this)">Show answer</button>
+  <div class="answer-box"><pre>import numpy as np
+df['SD0'] = df['SD0'].where(df['SD0'] > 0, other=np.nan)
+# .where(condition) keeps values where condition is TRUE,
+# replaces with `other` where condition is FALSE.</pre>
+<p class="note">Contrast with .mask() which is the inverse — it replaces where the condition is True.</p>
+</div>
+</div>
+
+<div class="q-card">
+  <div class="q-header"><div class="q-num">Q9</div><div class="q-text">After replacing bad values with NaN, how do you forward-fill missing values in 'SD0'?</div></div>
+  <button class="toggle-btn" onclick="toggle(this)">Show answer</button>
+  <div class="answer-box"><pre>df['SD0'] = df['SD0'].ffill()
+# ffill() = forward fill — propagates the last valid value downward.
+# Backward fill: df['SD0'].bfill()</pre></div>
+</div>
+
+</div>
+
+<div id="transform" class="section-hidden">
+
+<div class="q-card">
+  <div class="q-header"><div class="q-num">Q10</div><div class="q-text">How do you multiply all values in a column by a scalar (e.g. scale 'SD0' by 100)?</div></div>
+  <button class="toggle-btn" onclick="toggle(this)">Show answer</button>
+  <div class="answer-box"><pre>df['SD0'] = df['SD0'] * 100
+# Pandas applies scalar operations element-wise automatically.</pre></div>
+</div>
+
+<div class="q-card">
+  <div class="q-header"><div class="q-num">Q11</div><div class="q-text">How do you convert all column names to Title Case?</div></div>
+  <button class="toggle-btn" onclick="toggle(this)">Show answer</button>
+  <div class="answer-box"><pre>df.columns = [c.title() for c in df.columns]
+# str.title() capitalises the first letter of each word.
+# e.g. 'sd0' -> 'Sd0', 'week_num' -> 'Week_Num'</pre></div>
+</div>
+
+<div class="q-card">
+  <div class="q-header"><div class="q-num">Q12</div><div class="q-text">How do you sort a DataFrame in descending order by a column called 'Sd0'?</div></div>
+  <button class="toggle-btn" onclick="toggle(this)">Show answer</button>
+  <div class="answer-box"><pre>df.sort_values('Sd0', ascending=False, inplace=True)
+# ascending=True  → smallest first (default)
+# ascending=False → largest first</pre></div>
+</div>
+
+<div class="q-card">
+  <div class="q-header"><div class="q-num">Q13</div><div class="q-text">How do you calculate percent change of a column and store it in a new column 'PCSDx'?</div></div>
+  <button class="toggle-btn" onclick="toggle(this)">Show answer</button>
+  <div class="answer-box"><pre>df['PCSDx'] = df['Sd0'].pct_change() * 100
+# pct_change() computes (current - previous) / previous
+# Multiply by 100 to express as a percentage.
+# The first row will always be NaN (no prior value).</pre></div>
+</div>
+
+</div>
+
+<div id="stats" class="section-hidden">
+
+<div class="q-card">
+  <div class="q-header"><div class="q-num">Q14</div><div class="q-text">How do you find the min, mean, and max of a column, along with their index positions?</div></div>
+  <button class="toggle-btn" onclick="toggle(this)">Show answer</button>
+  <div class="answer-box"><pre>s = df['S']
+
+# Min
+print(s.min(), s.idxmin())
+
+# Max
+print(s.max(), s.idxmax())
+
+# Mean (no direct idxmean — find closest value)
+mean_idx = (s - s.mean()).abs().idxmin()
+print(s.mean(), mean_idx)</pre>
+<p class="note">idxmin() / idxmax() return the INDEX LABEL of the min/max, not the position number.</p>
+</div>
+</div>
+
+<div class="q-card">
+  <div class="q-header"><div class="q-num">Q15</div><div class="q-text">Explain what <code>(s - s.mean()).abs().idxmin()</code> does step by step.</div></div>
+  <button class="toggle-btn" onclick="toggle(this)">Show answer</button>
+  <div class="answer-box"><pre>s = pd.Series([1, 5, 9, 3])
+# s.mean() = 4.5
+# s - s.mean() = [-3.5, 0.5, 4.5, -1.5]  (distance from mean)
+# .abs()        = [3.5,  0.5, 4.5,  1.5]  (absolute distances)
+# .idxmin()     = 1                         (index of smallest distance)
+# So index 1 (value=5) is closest to the mean (4.5)</pre></div>
+</div>
+
+<div class="q-card">
+  <div class="q-header"><div class="q-num">Q16</div><div class="q-text">What is the difference between <code>.where()</code> and <code>.mask()</code> in pandas?</div></div>
+  <button class="toggle-btn" onclick="toggle(this)">Show answer</button>
+  <div class="answer-box"><pre>s = pd.Series([1, -2, 3, -4])
+
+# .where(cond) — KEEP where True, replace where False
+s.where(s > 0, other=0)    # [1, 0, 3, 0]
+
+# .mask(cond) — REPLACE where True, keep where False
+s.mask(s < 0, other=0)     # [1, 0, 3, 0]
+# Both give the same result here — they are inverses of each other.</pre></div>
+</div>
+
+</div>
+
+<div id="plotting" class="section-hidden">
+
+<div class="q-card">
+  <div class="q-header"><div class="q-num">Q17</div><div class="q-text">How do you create a basic line plot of Week vs SD0 with axis labels and a title?</div></div>
+  <button class="toggle-btn" onclick="toggle(this)">Show answer</button>
+  <div class="answer-box"><pre>import matplotlib.pyplot as plt
+
+plt.figure(figsize=(8, 5))
+plt.plot(df['Week'], df['SD0'], marker='o')
+plt.xlabel('Week')
+plt.ylabel('SD0 (kg)')
+plt.title('Week vs SD0')
+plt.tight_layout()
+plt.show()</pre></div>
+</div>
+
+<div class="q-card">
+  <div class="q-header"><div class="q-num">Q18</div><div class="q-text">How do you plot multiple columns (SD0, SD2, SD1neg) against 'Day' on the same axes using a loop?</div></div>
+  <button class="toggle-btn" onclick="toggle(this)">Show answer</button>
+  <div class="answer-box"><pre>fig, ax = plt.subplots(figsize=(9, 5))
+
+for col, marker in zip(['SD0', 'SD2', 'SD1neg'], ['o', 's', '^']):
+    ax.plot(df['Day'], df[col], marker=marker, label=col)
+
+ax.set_xlabel('Day')
+ax.set_ylabel('Mass (kg)')
+ax.set_title('Day vs SD0, SD2, SD1neg')
+ax.legend()
+plt.tight_layout()</pre>
+<p class="note">zip() pairs each column name with its marker symbol so you can iterate both together.</p>
+</div>
+</div>
+
+<div class="q-card">
+  <div class="q-header"><div class="q-num">Q19</div><div class="q-text">What is the difference between <code>plt.plot()</code> and <code>ax.plot()</code>? When should you use each?</div></div>
+  <button class="toggle-btn" onclick="toggle(this)">Show answer</button>
+  <div class="answer-box"><pre># plt.plot() — implicit, uses the current active axes
+plt.plot(x, y)   # quick single plots
+
+# ax.plot() — explicit, targets a specific Axes object
+fig, ax = plt.subplots()
+ax.plot(x, y)    # preferred when you have multiple subplots
+                 # or need fine-grained control</pre></div>
+</div>
+
+<div class="q-card">
+  <div class="q-header"><div class="q-num">Q20</div><div class="q-text">How do you save a matplotlib plot to a PNG file at 150 DPI?</div></div>
+  <button class="toggle-btn" onclick="toggle(this)">Show answer</button>
+  <div class="answer-box"><pre>plt.savefig('tutorial2_plot.png', dpi=150)
+# savefig() must be called BEFORE plt.show()
+# plt.show() clears the figure in some backends.
+# Common formats: .png, .jpg, .pdf, .svg</pre></div>
+</div>
+
+</div>
+
+<div id="export" class="section-hidden">
+
+<div class="q-card">
+  <div class="q-header"><div class="q-num">Q21</div><div class="q-text">How do you write a DataFrame to a CSV file without the row index?</div></div>
+  <button class="toggle-btn" onclick="toggle(this)">Show answer</button>
+  <div class="answer-box"><pre>df.to_csv('tutorial2.csv', index=False)
+# index=False prevents pandas from writing the row numbers as a column.
+# index=True (default) would add an extra leftmost column of row numbers.</pre></div>
+</div>
+
+<div class="q-card">
+  <div class="q-header"><div class="q-num">Q22</div><div class="q-text">How do you check that output files actually exist and print their sizes?</div></div>
+  <button class="toggle-btn" onclick="toggle(this)">Show answer</button>
+  <div class="answer-box"><pre>import os
+
+for path in ['tutorial2_plot.png', 'tutorial2.csv']:
+    exists = os.path.exists(path)
+    size   = os.path.getsize(path) if exists else 'N/A'
+    print(f"{path} | exists={exists} | size={size} bytes")</pre></div>
+</div>
+
+<div class="q-card">
+  <div class="q-header"><div class="q-num">Q23</div><div class="q-text">What are common ways to export a Jupyter Notebook to other formats?</div></div>
+  <button class="toggle-btn" onclick="toggle(this)">Show answer</button>
+  <div class="answer-box"><pre># Via Jupyter UI:
+#   File → Save and Export As → HTML / PDF / Markdown / .py
+
+# Via command line (nbconvert):
+jupyter nbconvert --to html notebook.ipynb
+jupyter nbconvert --to pdf  notebook.ipynb
+jupyter nbconvert --to script notebook.ipynb  # exports as .py</pre></div>
+</div>
+
+</div>
+</div>
+
+<script>
+function showSection(id) {
+  ['loading','cleaning','transform','stats','plotting','export'].forEach(s => {
+    document.getElementById(s).className = s === id ? '' : 'section-hidden';
+  });
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.className = 'tab' + (t.getAttribute('onclick').includes(id) ? ' active' : '');
+  });
+}
+
+function toggle(btn) {
+  const box = btn.nextElementSibling;
+  const isShown = box.classList.contains('show');
+  box.classList.toggle('show', !isShown);
+  btn.textContent = isShown ? 'Show answer' : 'Hide answer';
+}
+</script>
